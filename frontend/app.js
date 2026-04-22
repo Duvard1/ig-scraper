@@ -2,6 +2,7 @@ const API_BASE = "";
 
 // ── Utilidades ──
 
+//Formatea un número para mostrarlo de forma abreviada (ej. 1M, 1.5K) o con separador de miles.
 function formatNumber(n) {
     if (!n && n !== 0) return "—";
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M";
@@ -9,22 +10,27 @@ function formatNumber(n) {
     return n.toLocaleString("es-EC");
 }
 
+/*
+Convierte una URL de imagen original en una URL que pasa por el proxy del backend,
+Necesario para evitar problemas de CORS y bloqueos de imágenes por parte de Instagram.
+ */
 function proxyUrl(url) {
     if (!url) return "";
     return `${API_BASE}/proxy/image?url=${encodeURIComponent(url)}`;
 }
 
+//Muestra y oculta un mensaje de error temporal en la parte inferior de la interfaz.
 function showError(msg) {
     const box = document.getElementById("errorBox");
     document.getElementById("errorText").textContent = msg;
     box.style.display = "flex";
     setTimeout(() => (box.style.display = "none"), 6000);
 }
-
 function hideError() {
     document.getElementById("errorBox").style.display = "none";
 }
 
+//Muestra u oculta la barra de progreso (loader) animada con un texto descriptivo
 function setLoader(active, text = "Procesando...") {
     const loader = document.getElementById("loader");
     const loaderText = document.getElementById("loaderText");
@@ -32,6 +38,7 @@ function setLoader(active, text = "Procesando...") {
     loader.classList.toggle("active", active);
 }
 
+//Cambia el estado visual de un botón para indicar que está procesando, deshabilitándolo
 function setBtnLoading(btnId, loading) {
     const btn = document.getElementById(btnId);
     if (!btn) return;
@@ -43,6 +50,10 @@ function setBtnLoading(btnId, loading) {
 
 // ── Estado de autenticación ──
 
+/*
+Verifica con el backend si existe una sesión de Instagram activa guardada (cookies).
+Actualiza el indicador visual (punto verde/rojo) en el header de la aplicación.
+*/
 async function checkAuthStatus() {
     try {
         const res = await fetch(`${API_BASE}/auth/status`);
@@ -65,6 +76,11 @@ async function checkAuthStatus() {
 
 // ── Autenticación ──
 
+/*
+Inicia el proceso de autenticación enviando una solicitud al backend.
+El backend se encarga de abrir una ventana de Playwright donde el usuario
+puede iniciar sesión manualmente en Instagram para generar y guardar las cookies.
+*/
 async function doAuth() {
     setBtnLoading("authBtn", true);
     hideError();
@@ -96,6 +112,11 @@ async function doAuth() {
 
 // ── Scraping ──
 
+/*
+Obtiene el nombre de usuario ingresado, realiza validaciones y envía la solicitud POST
+al backend para extraer los datos del perfil (scraping). 
+Mientras se espera la respuesta, muestra mensajes de estado rotativos en el loader.
+*/
 async function doScrape() {
     const username = document.getElementById("targetUser").value.trim().replace(/^@/, "");
 
@@ -139,7 +160,7 @@ async function doScrape() {
 
         renderResults(body.data);
     } catch (err) {
-        showError("No se pudo conectar con el servidor. ¿Está corriendo el backend?");
+        showError("No se pudo conectar con el servidor");
     } finally {
         setLoader(false);
         document.getElementById("scrapeBtn").disabled = false;
@@ -148,8 +169,24 @@ async function doScrape() {
 
 // ── Renderizado de resultados ──
 
+/*
+Recibe los datos en formato JSON extraídos del perfil y actualiza el DOM para mostrarlos
+de forma visual en la pantalla (foto de perfil, estadísticas, biografía, posts recientes).
+También genera la vista en crudo (JSON raw)
+*/
 function renderResults(data) {
     const container = document.getElementById("results");
+
+    // Foto de perfil
+    const picWrap = document.getElementById("profilePicWrap");
+    const picImg = document.getElementById("profilePic");
+    if (data.profile_pic_url) {
+        picImg.src = proxyUrl(data.profile_pic_url);
+        picImg.onerror = () => { picWrap.style.display = "none"; };
+        picWrap.style.display = "block";
+    } else {
+        picWrap.style.display = "none";
+    }
 
     // Username y nombre
     document.getElementById("profileUsername").textContent = "@" + data.username;
@@ -160,7 +197,7 @@ function renderResults(data) {
     const badge = document.getElementById("verifiedBadge");
     badge.style.display = data.is_verified ? "block" : "none";
 
-    // Stats
+    // Estadisticas
     document.getElementById("statFollowers").textContent = formatNumber(data.followers);
     document.getElementById("statFollowing").textContent = formatNumber(data.following);
     document.getElementById("statPosts").textContent = formatNumber(data.posts_count);
@@ -175,7 +212,7 @@ function renderResults(data) {
     posts.forEach((post, idx) => {
         const item = document.createElement("div");
         item.className = "post-item";
-        item.style.animationDelay = `${idx * 0.04}s`;
+        item.style.animationDelay = `${idx * 0.05}s`;
 
         const img = document.createElement("img");
         img.src = proxyUrl(post.thumbnail_url);
@@ -207,12 +244,18 @@ function renderResults(data) {
 
 // ── Toggle JSON ──
 
+//Alterna la visibilidad del panel que muestra los datos en formato JSON en crudo.
+
 function toggleJSON() {
     const out = document.getElementById("jsonOutput");
     out.style.display = out.style.display === "none" ? "block" : "none";
 }
 
 // ── Download Data ──
+/*
+Obtiene los datos JSON que se encuentran en el bloque preformatado de la pantalla,
+crea un archivo virtual Blob de tipo aplicación/json, y gatilla su descarga en el navegador.
+*/
 function downloadData() {
     const out = document.getElementById("jsonOutput").textContent;
     if (!out) {
@@ -237,9 +280,7 @@ function downloadData() {
 }
 
 // ── Init ──
-
+// Verifica el estado de autenticación al cargar la página
 document.addEventListener("DOMContentLoaded", () => {
     checkAuthStatus();
-
-    // (Eliminados los event listeners de igUser e igPass)
 });

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IG Scraper</title>
+    <title>Instagram Scraper</title>
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"
         rel="stylesheet" />
@@ -13,16 +13,13 @@
 
 <body>
 
-    <!-- BG Decoration -->
+    <!-- Decoracion Fondo -->
     <div class="bg-grid"></div>
     <div class="bg-glow"></div>
 
     <div class="app">
-
-        <!-- Header -->
         <header class="header">
             <div class="logo">
-                <span class="logo-icon">◈</span>
                 <span class="logo-text">IGSCRAPE</span>
             </div>
             <div class="auth-status" id="authStatus">
@@ -36,7 +33,7 @@
 
             <!-- Auth Panel -->
             <section class="panel panel--auth" id="authPanel">
-                <div class="panel__label">01 / AUTENTICACIÓN</div>
+                <div class="panel__label">AUTENTICACIÓN</div>
                 <h2 class="panel__title">Iniciar Sesión</h2>
                 <p class="panel__sub">Solo necesitas hacer esto <em>una vez</em>. Tu sesión queda guardada.</p>
 
@@ -47,7 +44,6 @@
 
                 <button class="btn btn--primary" id="authBtn" onclick="doAuth()">
                     <span class="btn-text">Autenticar</span>
-                    <span class="btn-icon">→</span>
                 </button>
 
                 <div class="notice">
@@ -58,14 +54,14 @@
 
             <!-- Scrape Panel -->
             <section class="panel panel--scrape">
-                <div class="panel__label">02 / EXTRACCIÓN</div>
+                <div class="panel__label">EXTRACCIÓN</div>
                 <h2 class="panel__title">Buscar Perfil</h2>
                 <p class="panel__sub">Ingresa el username del perfil público a analizar.</p>
 
                 <div class="search-row">
                     <div class="search-prefix">@</div>
-                    <input type="text" class="search-input" id="targetUser" placeholder="username" autocomplete="off"
-                        onkeydown="if(event.key==='Enter') doScrape()" />
+                    <input type="text" class="search-input" id="targetUser" placeholder="nombre de usuario"
+                        autocomplete="off" onkeydown="if(event.key==='Enter') doScrape()" />
                     <button class="btn btn--search" id="scrapeBtn" onclick="doScrape()">
                         <span>Extraer</span>
                     </button>
@@ -77,11 +73,15 @@
                 </div>
             </section>
 
-            <!-- Results -->
+            <!-- Resultados -->
             <section class="results" id="results" style="display:none">
 
-                <!-- Profile Header -->
+                <!-- Header del perfil -->
                 <div class="profile-header">
+                    <div class="profile-pic-wrap" id="profilePicWrap" style="display:none">
+                        <img class="profile-pic" id="profilePic" src="" alt="Foto de perfil" />
+                        <div class="profile-pic-ring"></div>
+                    </div>
                     <div class="profile-info">
                         <div class="profile-username" id="profileUsername"></div>
                         <div class="profile-name" id="profileName"></div>
@@ -122,7 +122,6 @@
                     <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
                         <button class="btn btn--primary" style="flex: 1; padding: 0.8rem;" onclick="downloadData()">
                             <span class="btn-text">Descargar Datos JSON</span>
-                            <span class="btn-icon">↓</span>
                         </button>
                         <button class="json-toggle" style="flex: 1; margin: 0;" onclick="toggleJSON()">
                             <span>{ }</span> Ver JSON completo
