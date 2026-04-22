@@ -1,0 +1,15 @@
+# Sesión - NUNCA subir al repo
+cookies.json
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+*.egg-info/
+
+# Sistema
+.DS_Store
+Thumbs.db@

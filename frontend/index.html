@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IG Scraper</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+    <!-- BG Decoration -->
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+
+    <div class="app">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">◈</span>
+                <span class="logo-text">IGSCRAPE</span>
+            </div>
+            <div class="auth-status" id="authStatus">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusText">Verificando sesión...</span>
+            </div>
+        </header>
+
+        <!-- Main -->
+        <main class="main">
+
+            <!-- Auth Panel -->
+            <section class="panel panel--auth" id="authPanel">
+                <div class="panel__label">01 / AUTENTICACIÓN</div>
+                <h2 class="panel__title">Iniciar Sesión</h2>
+                <p class="panel__sub">Solo necesitas hacer esto <em>una vez</em>. Tu sesión queda guardada.</p>
+
+                <p class="panel__sub" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+                    Se abrirá una ventana donde podrás ingresar tus credenciales directamente en Instagram de forma
+                    manual.
+                </p>
+
+                <button class="btn btn--primary" id="authBtn" onclick="doAuth()">
+                    <span class="btn-text">Autenticar</span>
+                    <span class="btn-icon">→</span>
+                </button>
+
+                <div class="notice">
+                    <span class="notice-icon">⚑</span>
+                    Tus credenciales solo se usan para hacer login. Las cookies se guardan localmente en el servidor.
+                </div>
+            </section>
+
+            <!-- Scrape Panel -->
+            <section class="panel panel--scrape">
+                <div class="panel__label">02 / EXTRACCIÓN</div>
+                <h2 class="panel__title">Buscar Perfil</h2>
+                <p class="panel__sub">Ingresa el username del perfil público a analizar.</p>
+
+                <div class="search-row">
+                    <div class="search-prefix">@</div>
+                    <input type="text" class="search-input" id="targetUser" placeholder="username" autocomplete="off"
+                        onkeydown="if(event.key==='Enter') doScrape()" />
+                    <button class="btn btn--search" id="scrapeBtn" onclick="doScrape()">
+                        <span>Extraer</span>
+                    </button>
+                </div>
+
+                <div class="loader" id="loader">
+                    <div class="loader-bar"></div>
+                    <span class="loader-text" id="loaderText">Navegando al perfil...</span>
+                </div>
+            </section>
+
+            <!-- Results -->
+            <section class="results" id="results" style="display:none">
+
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-info">
+                        <div class="profile-username" id="profileUsername"></div>
+                        <div class="profile-name" id="profileName"></div>
+                        <div class="profile-bio" id="profileBio"></div>
+                    </div>
+                    <div class="verified-badge" id="verifiedBadge" style="display:none">✓ VERIFICADO</div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statFollowers">—</div>
+                        <div class="stat-label">Seguidores</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statFollowing">—</div>
+                        <div class="stat-label">Siguiendo</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPosts">—</div>
+                        <div class="stat-label">Publicaciones</div>
+                    </div>
+                </div>
+
+                <!-- Posts Grid -->
+                <div class="posts-section">
+                    <div class="posts-header">
+                        <span class="posts-title">Publicaciones Recientes</span>
+                        <span class="posts-count" id="postsCountLabel"></span>
+                    </div>
+                    <div class="posts-grid" id="postsGrid"></div>
+                </div>
+
+                <!-- Raw JSON & Download -->
+                <div class="json-section">
+                    <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                        <button class="btn btn--primary" style="flex: 1; padding: 0.8rem;" onclick="downloadData()">
+                            <span class="btn-text">Descargar Datos JSON</span>
+                            <span class="btn-icon">↓</span>
+                        </button>
+                        <button class="json-toggle" style="flex: 1; margin: 0;" onclick="toggleJSON()">
+                            <span>{ }</span> Ver JSON completo
+                        </button>
+                    </div>
+                    <pre class="json-output" id="jsonOutput" style="display:none"></pre>
+                </div>
+
+            </section>
+
+            <!-- Error -->
+            <div class="error-box" id="errorBox" style="display:none">
+                <span class="error-icon">✕</span>
+                <span id="errorText"></span>
+            </div>
+
+        </main>
+
+        <footer class="footer">
+            <span>Solo perfiles públicos · Datos estructurados · Playwright + FastAPI</span>
+        </footer>
+
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
